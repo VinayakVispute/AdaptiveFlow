@@ -1,15 +1,15 @@
-FROM node:18-alpine AS base
+FROM node:18-bullseye AS base
 
-RUN apk update
-RUN apk upgrade
-RUN apk add --no-cache ffmpeg
+RUN apt-get update && apt-get install -y ffmpeg
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package.json package-lock.json tsconfig.json ./
 
 RUN npm install 
 
-COPY index.js ./
+COPY src ./src
+
+RUN npm run build
 
 CMD [ "npm", "start" ]

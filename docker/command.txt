@@ -1,0 +1,6 @@
+docker build -t adaptive_flow .
+
+
+docker run --env-file ./.env adaptive_flow
+docker run --env-file ./.env -it adaptive_flow /bin/sh
+

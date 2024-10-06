@@ -14,24 +14,9 @@ type Resolution = {
 
 const RESOLUTIONS: Resolution[] = [
   {
-    name: "360p",
-    width: 640,
-    height: 360,
-  },
-  {
     name: "480p",
     width: 854,
     height: 480,
-  },
-  {
-    name: "720p",
-    width: 1280,
-    height: 720,
-  },
-  {
-    name: "1080p",
-    width: 1920,
-    height: 1080,
   },
 ];
 
@@ -62,23 +47,32 @@ async function processVideo(
   transcodedVideos: any[]
 ) {
   return new Promise<void>((resolve, reject) => {
-    const outputDir = path.join(__dirname, "transcoded");
+    const fileName = path.basename(originalVideo, path.extname(originalVideo));
+    const outputDir = path.join(__dirname, `${fileName}-transcoded`);
     if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir);
+      console.log(`Creating output directory: ${outputDir}`);
+      fs.mkdirSync(outputDir, { recursive: true });
+    } else {
+      console.log(`Output directory already exists: ${outputDir}`);
     }
 
     const hlsPath = `${outputDir}/${resolution.name}/playlist.m3u8`; // HLS playlist output path
     const segmentPath = `${outputDir}/${resolution.name}/segment%03d.ts`; // Segment naming
+    console.log("This is the segment path", segmentPath);
+    console.log(`Transcoding video to ${resolution.name}...`);
+    console.log("This is hlsPath", hlsPath);
 
     ffmpeg(originalVideo)
       .withVideoCodec("libx264")
       .withAudioCodec("aac")
-      .withSize(`${resolution.width}x${resolution.height}`) // Set resolution dynamically
+      // Set resolution dynamically
       .outputOptions([
         "-hls_time 10",
         "-hls_playlist_type vod",
         `-hls_segment_filename ${segmentPath}`,
+        `-vf scale=${resolution.width}:${resolution.height}`, // Explicitly set resolution
         "-start_number 0",
+        "-loglevel verbose", // Add debug log level
       ])
       .output(hlsPath)
       .on("progress", (progress: any) => {
@@ -160,18 +154,23 @@ async function init() {
     const inputVideoName = path.parse(INPUT_VIDEO).name;
     const inputVideoExtension = path.parse(INPUT_VIDEO).ext;
 
+    if (!inputVideoName || !inputVideoExtension) {
+      throw new Error("Invalid input video file name or extension.");
+    }
+
     const containerClient = blobServiceClient.getContainerClient(BUCKET_NAME);
     const blobClient = containerClient.getBlobClient(INPUT_VIDEO);
     const { metadata } = await blobClient.getProperties();
 
-    if (!metadata || !metadata.uniqueid) {
-      throw new Error("No metadata found for the video");
-    }
+    // if (!metadata || !metadata.uniqueid) {
+    //   throw new Error("No metadata found for the video");
+    // }
 
-    const { uniqueid } = metadata;
+    // const { uniqueid } = metadata;
 
     console.log("This is the metadata", metadata);
     console.log(`Downloading video from blob: ${INPUT_VIDEO}`);
+
     const downloadFilePath = path.join(
       __dirname,
       `original-video${inputVideoExtension}`
@@ -190,27 +189,28 @@ async function init() {
     await Promise.all(promises);
     console.log("All resolutions processed and uploaded.");
     console.log("Webhook sent successfully.");
-    await sendWebhook({
-      success: true,
-      message: "All videos transcoded and uploaded to Azure Storage",
-      data: {
-        transcodedVideos,
-        uniqueId: uniqueid,
-      },
-    });
+    console.log(transcodedVideos);
+    // await sendWebhook({
+    //   success: true,
+    //   message: "All videos transcoded and uploaded to Azure Storage",
+    //   data: {
+    //     transcodedVideos,
+    //     uniqueId: uniqueid,
+    //   },
+    // });
   } catch (error: any) {
     console.error("Error processing video:", error);
-    await sendWebhook({
-      success: false,
-      message: `Error during video processing: ${error.message}`,
-      data: {
-        transcodedVideos: [],
-        uniqueId: uniqueid,
-      },
-    });
+    // await sendWebhook({
+    //   success: false,
+    //   message: `Error during video processing: ${error.message}`,
+    //   data: {
+    //     transcodedVideos: [],
+    //     uniqueId: uniqueid,
+    //   },
+    // });
   } finally {
     console.log("Cleaning up...");
-    fs.rmdirSync(path.join(__dirname, "transcoded"), { recursive: true });
+    fs.rm(path, { recursive: true });
     process.exit(0);
   }
 }
