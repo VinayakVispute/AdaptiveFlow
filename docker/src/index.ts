@@ -208,10 +208,6 @@ async function init() {
     //     uniqueId: uniqueid,
     //   },
     // });
-  } finally {
-    console.log("Cleaning up...");
-    fs.rm(path, { recursive: true });
-    process.exit(0);
   }
 }
 
