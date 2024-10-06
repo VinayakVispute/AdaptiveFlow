@@ -14,9 +14,24 @@ type Resolution = {
 
 const RESOLUTIONS: Resolution[] = [
   {
+    name: "360p",
+    width: 640,
+    height: 360,
+  },
+  {
     name: "480p",
     width: 854,
     height: 480,
+  },
+  {
+    name: "720p",
+    width: 1280,
+    height: 720,
+  },
+  {
+    name: "1080p",
+    width: 1920,
+    height: 1080,
   },
 ];
 
@@ -41,14 +56,23 @@ const blobServiceClient = BlobServiceClient.fromConnectionString(
   AZURE_STORAGE_CONNECTION_STRING
 );
 
+const sanitizeFileName = (fileName: string): string => {
+  return fileName
+    .replace(/[^\w\s]/g, "_") // Replace all non-alphanumeric characters with '_'
+    .replace(/\s+/g, "_") // Replace spaces with '_'
+    .replace(/_+/g, "_") // Replace multiple '_' with a single '_'
+    .replace(/^_+|_+$/g, ""); // Remove leading and trailing '_'
+};
+
 async function processVideo(
   resolution: Resolution,
   originalVideo: string,
-  transcodedVideos: any[]
+  transcodedVideos: any[],
+  masterPlaylist: string[]
 ) {
   return new Promise<void>((resolve, reject) => {
-    const fileName = path.basename(originalVideo, path.extname(originalVideo));
-    const outputDir = path.join(__dirname, `${fileName}-transcoded`);
+    const inputVideoName = sanitizeFileName(path.parse(INPUT_VIDEO).name);
+    const outputDir = path.join(__dirname, `${inputVideoName}-transcoded`);
     if (!fs.existsSync(outputDir)) {
       console.log(`Creating output directory: ${outputDir}`);
       fs.mkdirSync(outputDir, { recursive: true });
@@ -56,8 +80,16 @@ async function processVideo(
       console.log(`Output directory already exists: ${outputDir}`);
     }
 
-    const hlsPath = `${outputDir}/${resolution.name}/playlist.m3u8`; // HLS playlist output path
-    const segmentPath = `${outputDir}/${resolution.name}/segment%03d.ts`; // Segment naming
+    const resolutionOutputDir = path.join(outputDir, resolution.name); // Dynamic directory based on resolution
+
+    if (!fs.existsSync(resolutionOutputDir)) {
+      console.log(`Creating output directory: ${resolutionOutputDir}`);
+      fs.mkdirSync(resolutionOutputDir, { recursive: true });
+    } else {
+      console.log(`Output directory already exists: ${resolutionOutputDir}`);
+    }
+    const hlsPath = `${resolutionOutputDir}/playlist.m3u8`; // HLS playlist output path
+    const segmentPath = `${resolutionOutputDir}/segment%03d.ts`; // Segment naming
     console.log("This is the segment path", segmentPath);
     console.log(`Transcoding video to ${resolution.name}...`);
     console.log("This is hlsPath", hlsPath);
@@ -84,24 +116,17 @@ async function processVideo(
       })
       .on("end", async () => {
         console.log(`Processing ${resolution.name} finished`);
-        const outputContainerClient =
-          blobServiceClient.getContainerClient(OUTPUT_VIDEO_BUCKET);
-        const blobName = path.basename(hlsPath);
-        const blockBlobClient = outputContainerClient.getBlobClient(blobName);
-        transcodedVideos.push({
-          name: blobName,
-          url: blockBlobClient.url,
-          resolution: resolution.name,
-        });
-        console.log(`Uploading transcoded video to blob: ${blobName}`);
-        try {
-          await blockBlobClient.uploadFile(hlsPath);
-          console.log(`Uploaded to Azure Storage: ${hlsPath}`);
-          resolve();
-        } catch (uploadError) {
-          console.error(`Error uploading ${blobName}:`, uploadError);
-          reject(uploadError);
-        }
+
+        const bandwidth = resolution.width * resolution.height * 1.5; // Simple approximation for bandwidth
+        const playlistEntry = `#EXT-X-STREAM-INF:BANDWIDTH=${Math.round(
+          bandwidth
+        )},RESOLUTION=${resolution.width}x${resolution.height}\n${
+          resolution.name
+        }/playlist.m3u8\n`;
+
+        masterPlaylist.push(playlistEntry); // Add this resolution's playlist to the master playlist
+
+        resolve();
       })
       .run();
   });
@@ -145,8 +170,22 @@ async function sendWebhook(params: {
   }
 }
 
+async function createMasterPlaylist(
+  inputVideoName: string,
+  masterPlaylist: string[]
+) {
+  const masterPlaylistPath = path.join(
+    __dirname,
+    `${inputVideoName}-transcoded/index.m3u8`
+  );
+  const masterPlaylistContent = `#EXTM3U\n${masterPlaylist.join("")}`;
+  fs.writeFileSync(masterPlaylistPath, masterPlaylistContent);
+  console.log(`Master playlist created at ${masterPlaylistPath}`);
+}
+
 async function init() {
   const transcodedVideos: any[] = [];
+  const masterPlaylist: string[] = [];
   let uniqueid: string | undefined;
   try {
     console.log("Downloading video from Azure Blob Storage...");
@@ -184,10 +223,12 @@ async function init() {
     console.log("Starting transcoding...");
 
     const promises = RESOLUTIONS.map((resolution) =>
-      processVideo(resolution, originalVideo, transcodedVideos)
+      processVideo(resolution, originalVideo, transcodedVideos, masterPlaylist)
     );
     await Promise.all(promises);
     console.log("All resolutions processed and uploaded.");
+    await createMasterPlaylist(inputVideoName, masterPlaylist);
+
     console.log("Webhook sent successfully.");
     console.log(transcodedVideos);
     // await sendWebhook({
@@ -212,3 +253,24 @@ async function init() {
 }
 
 init();
+
+{
+  /*      const outputContainerClient =
+          blobServiceClient.getContainerClient(OUTPUT_VIDEO_BUCKET);
+        const blobName = path.basename(hlsPath);
+        const blockBlobClient = outputContainerClient.getBlobClient(blobName);
+        transcodedVideos.push({
+          name: blobName,
+          url: blockBlobClient.url,
+          resolution: resolution.name,
+        });
+        console.log(`Uploading transcoded video to blob: ${blobName}`);
+        try {
+          await blockBlobClient.uploadFile(hlsPath);
+          console.log(`Uploaded to Azure Storage: ${hlsPath}`);
+          resolve();
+        } catch (uploadError) {
+          console.error(`Error uploading ${blobName}:`, uploadError);
+          reject(uploadError);
+        } */
+}
