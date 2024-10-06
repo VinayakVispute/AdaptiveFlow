@@ -1,12 +1,15 @@
-FROM ubuntu:focal
+FROM node:18-alpine AS base
 
-RUN /usr/bin/apt-get update && \
-    /usr/bin/apt-get install -y curl && \
-    curl -sL https://deb.nodesource.com/setup_18.x | /bin/bash - && \
-    /usr/bin/apt-get update && \
-    /usr/bin/apt-get upgrade -y && \
-    /usr/bin/apt-get install -y nodejs ffmpeg
+RUN apk update
+RUN apk upgrade
+RUN apk add --no-cache ffmpeg
 
-WORKDIR /home/app
+WORKDIR /app
 
-ENTRYPOINT ["bash"]    
+COPY package.json package-lock.json ./
+
+RUN npm install 
+
+COPY index.js ./
+
+CMD [ "npm", "start" ]
