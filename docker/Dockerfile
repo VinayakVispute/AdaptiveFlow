@@ -1,6 +1,8 @@
-FROM node:18-bullseye AS base
+FROM node:18-alpine AS base
 
-RUN apt-get update && apt-get install -y ffmpeg
+RUN apk update
+RUN apk upgrade
+RUN apk add --no-cache ffmpeg
 
 WORKDIR /app
 
