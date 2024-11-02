@@ -79,7 +79,9 @@ async function uploadFileToBlob(
     uploadOptions.bufferSize,
     uploadOptions.maxBuffers
   );
+
   console.log(`File ${blobName} successfully uploaded to Azure Storage`);
+  return blockBlobClient.url;
 }
 
 async function processVideo(
@@ -87,7 +89,8 @@ async function processVideo(
   originalVideo: string,
   outputDir: string,
   containerClient: ContainerClient,
-  inputVideoName: string
+  inputVideoName: string,
+  randomId: string
 ) {
   console.log(`Processing video for resolution: ${resolution.name}`);
   const resolutionOutputDir = path.join(outputDir, resolution.name);
@@ -151,7 +154,7 @@ async function processVideo(
         await uploadFileToBlob(
           hlsPath,
           containerClient,
-          `${inputVideoName}-transcoded/${resolution.name}/playlist.m3u8`
+          `${randomId}/${resolution.name}/playlist.m3u8`
         );
 
         for (const segmentFile of fs
@@ -163,7 +166,7 @@ async function processVideo(
           await uploadFileToBlob(
             path.join(resolutionOutputDir, segmentFile),
             containerClient,
-            `${inputVideoName}-transcoded/${resolution.name}/${segmentFile}`
+            `${randomId}/${resolution.name}/${segmentFile}`
           );
         }
 
@@ -202,23 +205,27 @@ async function sendWebhook({
 async function createMasterPlaylist(
   inputVideoName: string,
   masterPlaylist: string[],
-  outputContainerClient: ContainerClient
+  outputContainerClient: ContainerClient,
+  randomId: string
 ) {
   const masterPlaylistPath = path.join(
     __dirname,
-    `${inputVideoName}-transcoded/index.m3u8`
+    `${sanitizeFileName(inputVideoName)}-transcoded/index.m3u8`
   );
   const masterPlaylistContent = `#EXTM3U\n${masterPlaylist.join("")}`;
 
-  console.log(`Creating master playlist for video: ${inputVideoName}`);
+  console.log(
+    `Creating master playlist for video: ${sanitizeFileName(inputVideoName)}`
+  );
 
   await fs.promises.writeFile(masterPlaylistPath, masterPlaylistContent);
   await uploadFileToBlob(
     masterPlaylistPath,
     outputContainerClient,
-    `${inputVideoName}-transcoded/index.m3u8`
+    `${randomId}/index.m3u8`
   );
   console.log("Master playlist uploaded successfully.");
+  return;
 }
 
 async function init() {
@@ -230,7 +237,6 @@ async function init() {
   try {
     const inputVideoName = path.parse(INPUT_VIDEO).name;
     console.log(`Processing input video: ${INPUT_VIDEO} as ${inputVideoName}`);
-    uniqueId = generateRandomNumericId();
 
     const downloadFilePath = path.join(
       __dirname,
@@ -239,6 +245,16 @@ async function init() {
     console.log("Downloading video from Azure to path:", downloadFilePath);
     const containerClient = blobServiceClient.getContainerClient(BUCKET_NAME);
     const blobClient = containerClient.getBlobClient(INPUT_VIDEO);
+
+    // const { metadata } = await blobClient.getProperties();
+
+    // if (!metadata || !metadata.uniqueId) {
+    //   throw new Error("No metadata found for the video");
+    // }
+
+    // uniqueId = metadata?.uniqueId;
+    uniqueId = generateRandomNumericId();
+    const randomId = generateRandomNumericId(15);
     await blobClient.downloadToFile(downloadFilePath);
     console.log("Video downloaded successfully.");
 
@@ -269,7 +285,8 @@ async function init() {
           downloadFilePath,
           outputDir,
           outputContainerClient,
-          inputVideoName
+          inputVideoName,
+          randomId
         )
       )
     );
@@ -277,17 +294,18 @@ async function init() {
     masterPlaylist.push(...(playlistEntries as string[]));
     console.log("All resolutions processed. Creating master playlist...");
 
-    await createMasterPlaylist(
+    const returnedUrl = await createMasterPlaylist(
       inputVideoName,
       masterPlaylist,
-      outputContainerClient
+      outputContainerClient,
+      randomId
     );
     console.log("All videos transcoded and master playlist created.");
 
     await sendWebhook({
       success: true,
       message: "Video processing completed successfully",
-      data: { transcodedVideos, uniqueId },
+      data: { returnedUrl, uniqueId },
     });
   } catch (error: any) {
     console.error("An error occurred during processing:", error.message);
