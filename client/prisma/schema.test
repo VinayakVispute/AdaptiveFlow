@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String          @id @default(uuid())
+  clerkId       String          @unique
+  name          String
+  userName      String          @unique
+  email         String
+  picture       String          @default("https://res.cloudinary.com/dkawvablj/image/upload/v1725119468/Core/mwpxqnn5viel4zddmng7.jpg")
+  joinedAt      DateTime        @default(now())
+  UploadedVideo UploadedVideo[]
+  Notifications Notifications[]
+}
+
+model Video {
+  id              Int               @id @default(autoincrement())
+  title           String
+  videoUrl        String
+  uploadedAt      DateTime          @default(now())
+  resolution      String
+  UploadedVideo   UploadedVideo[]
+  TranscodedVideo TranscodedVideo[]
+}
+
+model UploadedVideo {
+  id                String          @id
+  user              User            @relation(fields: [userId], references: [id])
+  userId            String
+  status            Status          @default(PENDING)
+  video             Video           @relation(fields: [videoId], references: [id])
+  videoId           Int
+  TranscodedVideo   TranscodedVideo @relation(fields: [transcodedVideoId], references: [id])
+  uploadedAt        DateTime        @updatedAt
+  createdAt         DateTime        @default(now())
+  Notifications     Notifications[]
+  transcodedVideoId String
+}
+
+model TranscodedVideo {
+  id            String          @id @default(uuid())
+  transcodedAt  DateTime        @default(now())
+  video         Video           @relation(fields: [videoId], references: [id])
+  videoId       Int
+  uploadedAt    DateTime        @updatedAt
+  UploadedVideo UploadedVideo[]
+}
+
+enum Status {
+  PENDING
+  FINISHED
+  FAILED
+}
+
+enum Event {
+  NEW_VIDEO
+  TRANSCODED_VIDEO
+}
+
+enum EventStatus {
+  FINISHED
+  FAILED
+}
+
+model Notifications {
+  id              String        @id @default(uuid())
+  user            User          @relation(fields: [userId], references: [id])
+  userId          String
+  uploadedVideo   UploadedVideo @relation(fields: [uploadedVideoId], references: [id])
+  uploadedVideoId String
+  event           EventStatus
+  read            Boolean       @default(false)
+  createdAt       DateTime      @default(now())
+}

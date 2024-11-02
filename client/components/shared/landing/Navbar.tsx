@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { motion, useScroll, useMotionValueEvent } from "framer-motion"
-import { Menu, Laptop } from "lucide-react"
+import { Menu, Sun, Moon, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
     Sheet,
@@ -11,13 +11,15 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet"
 import Image from "next/image"
-import { SignedOut, SignedIn, SignInButton, SignUpButton } from "@clerk/nextjs"
+import { SignedOut, SignedIn, SignInButton, SignUpButton, useClerk } from "@clerk/nextjs"
 
 export default function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const [currentPage, setCurrentPage] = useState("/")
+    const [isDarkMode, setIsDarkMode] = useState(false)
     const { scrollY } = useScroll()
+    const { signOut } = useClerk()
 
     useMotionValueEvent(scrollY, "change", (latest) => {
         setIsScrolled(latest > 50)
@@ -27,16 +29,34 @@ export default function Navbar() {
         setCurrentPage(window.location.pathname)
     }, [])
 
+    const toggleTheme = () => {
+        setIsDarkMode(!isDarkMode)
+    }
+
     const navItems = [
         { name: "How It Works", link: "/how-it-works" },
         { name: "Technology", link: "/technology" },
         { name: "Portfolio", link: "/portfolio" }
     ]
 
+    const colors = {
+        primary: '#3B82F6',
+        secondary: '#14B8A6',
+        background: '#FFFFFF',
+        text: '#1E293B',
+    }
+
+    const handleLogout = () => {
+        signOut()
+    }
+
     return (
         <motion.nav
-            className={`fixed top-0 left-0 right-0 z-50 ${isScrolled ? "bg-white/80 backdrop-blur-md shadow-md" : "bg-transparent"
+            className={`fixed top-0 left-0 right-0 z-50 ${isScrolled
+                ? `bg-opacity-80 backdrop-blur-md shadow-md`
+                : "bg-transparent"
                 } transition-all duration-300`}
+            style={{ backgroundColor: isScrolled ? colors.background : 'transparent' }}
             initial={{ y: -100 }}
             animate={{ y: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -57,8 +77,11 @@ export default function Navbar() {
                             <Link
                                 key={item.name}
                                 href={item.link}
-                                className={`text-gray-600 hover:text-orange-500 transition-colors ${currentPage === item.link ? "text-orange-500 font-semibold" : ""
+                                className={`transition-colors ${currentPage === item.link ? `font-semibold` : ``
                                     }`}
+                                style={{
+                                    color: currentPage === item.link ? colors.primary : colors.text
+                                }}
                             >
                                 {item.name}
                             </Link>
@@ -67,27 +90,69 @@ export default function Navbar() {
                     <SignedOut>
                         <div className="hidden md:flex items-center space-x-2">
                             <SignInButton>
-                                <Button variant="ghost" className="text-gray-600 hover:text-orange-500 transition-colors">Log in</Button>
+                                <Button
+                                    variant="ghost"
+                                    className="transition-colors"
+                                    style={{ color: colors.text }}
+                                >
+                                    Log in
+                                </Button>
                             </SignInButton>
                             <SignUpButton>
-                                <Button className="bg-gradient-to-r from-orange-500 to-red-600 text-white hover:from-orange-600 hover:to-red-700 transition-colors">Sign up</Button>
+                                <Button
+                                    className="transition-colors"
+                                    style={{
+                                        backgroundColor: colors.primary,
+                                        color: colors.background
+                                    }}
+                                >
+                                    Sign up
+                                </Button>
                             </SignUpButton>
                         </div>
                     </SignedOut>
                     <SignedIn>
                         <div className="hidden md:flex items-center space-x-2">
-                            <Link href="/dashboard">
-                                <Button className="bg-gradient-to-r from-orange-500 to-red-600 text-white hover:from-orange-600 hover:to-red-700 transition-colors">
+                            <Link href="/Dashboard">
+                                <Button
+                                    className="transition-colors"
+                                    style={{
+                                        backgroundColor: colors.primary,
+                                        color: colors.background
+                                    }}
+                                >
                                     Dashboard
                                 </Button>
                             </Link>
-                            <Link href="/profile">
-                                <Button variant="ghost" className="text-gray-600 hover:text-orange-500 transition-colors">
+                            <Link href="/Profile">
+                                <Button
+                                    variant="ghost"
+                                    className="transition-colors"
+                                    style={{ color: colors.text }}
+                                >
                                     Profile
                                 </Button>
                             </Link>
+                            <Button
+                                onClick={handleLogout}
+                                variant="ghost"
+                                className="transition-colors"
+                                style={{ color: colors.text }}
+                            >
+                                <LogOut className="h-5 w-5 mr-2" />
+                                Logout
+                            </Button>
                         </div>
                     </SignedIn>
+                    <Button
+                        onClick={toggleTheme}
+                        variant="ghost"
+                        size="icon"
+                        className="ml-2"
+                        aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+                    >
+                        {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                    </Button>
                     <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                         <SheetTrigger asChild>
                             <Button variant="ghost" size="icon" className="md:hidden">
@@ -95,7 +160,7 @@ export default function Navbar() {
                                 <span className="sr-only">Toggle menu</span>
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="right">
+                        <SheetContent side="right" style={{ backgroundColor: colors.background }}>
                             <div className="flex flex-col space-y-4 mt-4">
                                 {navItems.map((item) => (
                                     <Link
@@ -105,10 +170,11 @@ export default function Navbar() {
                                     >
                                         <Button
                                             variant="ghost"
-                                            className={`w-full justify-start transition-colors ${currentPage === item.link
-                                                ? "text-orange-500 font-semibold"
-                                                : "text-gray-600 hover:text-orange-500"
+                                            className={`w-full justify-start transition-colors ${currentPage === item.link ? `font-semibold` : ``
                                                 }`}
+                                            style={{
+                                                color: currentPage === item.link ? colors.primary : colors.text
+                                            }}
                                         >
                                             {item.name}
                                         </Button>
@@ -116,23 +182,56 @@ export default function Navbar() {
                                 ))}
                                 <SignedOut>
                                     <SignInButton>
-                                        <Button variant="ghost" className="w-full justify-start text-gray-600 hover:text-orange-500 transition-colors">Log in</Button>
+                                        <Button
+                                            variant="ghost"
+                                            className="w-full justify-start transition-colors"
+                                            style={{ color: colors.text }}
+                                        >
+                                            Log in
+                                        </Button>
                                     </SignInButton>
                                     <SignUpButton>
-                                        <Button className="w-full justify-start bg-gradient-to-r from-orange-500 to-red-600 text-white hover:from-orange-600 hover:to-red-700 transition-colors">Sign up</Button>
+                                        <Button
+                                            className="w-full justify-start transition-colors"
+                                            style={{
+                                                backgroundColor: colors.primary,
+                                                color: colors.background
+                                            }}
+                                        >
+                                            Sign up
+                                        </Button>
                                     </SignUpButton>
                                 </SignedOut>
                                 <SignedIn>
-                                    <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
-                                        <Button className="w-full justify-start bg-gradient-to-r from-orange-500 to-red-600 text-white hover:from-orange-600 hover:to-red-700 transition-colors">
+                                    <Link href="/Dashboard" onClick={() => setIsMobileMenuOpen(false)}>
+                                        <Button
+                                            className="w-full justify-start transition-colors"
+                                            style={{
+                                                backgroundColor: colors.primary,
+                                                color: colors.background
+                                            }}
+                                        >
                                             Dashboard
                                         </Button>
                                     </Link>
-                                    <Link href="/profile" onClick={() => setIsMobileMenuOpen(false)}>
-                                        <Button variant="ghost" className="w-full justify-start text-gray-600 hover:text-orange-500 transition-colors">
+                                    <Link href="/Profile" onClick={() => setIsMobileMenuOpen(false)}>
+                                        <Button
+                                            variant="ghost"
+                                            className="w-full justify-start transition-colors"
+                                            style={{ color: colors.text }}
+                                        >
                                             Profile
                                         </Button>
                                     </Link>
+                                    <Button
+                                        onClick={handleLogout}
+                                        variant="ghost"
+                                        className="w-full justify-start transition-colors"
+                                        style={{ color: colors.text }}
+                                    >
+                                        <LogOut className="h-5 w-5 mr-2" />
+                                        Logout
+                                    </Button>
                                 </SignedIn>
                             </div>
                         </SheetContent>

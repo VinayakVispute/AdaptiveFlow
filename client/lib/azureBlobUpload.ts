@@ -4,13 +4,15 @@ import {
 } from "@azure/storage-blob";
 import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
-import { createdUploadedVideoInDb } from "./action/video.action";
+// import { createdUploadedVideoInDb } from "./action/video.action";
 
 interface UploadResult {
   success: boolean;
   url?: string;
   error?: string;
 }
+
+function createdUploadedVideoInDb() {}
 
 export async function uploadVideoToAzureDirectly(
   videoFileName: string,
@@ -80,12 +82,13 @@ export async function uploadVideoToAzureDirectly(
     console.log("Progress set to 100%");
 
     console.log("Creating video record in database...");
-    await createdUploadedVideoInDb({
-      id: uniqueId,
-      title: videoFileName,
-      videoUrl: blockBlobClient.url,
-      resolution: videoResolution as string,
-    });
+    await createdUploadedVideoInDb();
+    // {
+    // id: uniqueId,
+    // title: videoFileName,
+    // videoUrl: blockBlobClient.url,
+    // resolution: videoResolution as string,
+    // }
     console.log("Video record created in database");
 
     return {

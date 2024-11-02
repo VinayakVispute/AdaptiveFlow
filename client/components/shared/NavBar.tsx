@@ -84,13 +84,13 @@ const NavBar = () => {
                             ))}
                             <SignedIn>
                                 <Link
-                                    href="/profile"
+                                    href="/Profile"
                                     className="text-white hover:text-[#e6fcf5] transition-colors"
                                 >
                                     Profile
                                 </Link>
                                 <Link
-                                    href="/dashboard"
+                                    href="/Dashboard"
                                     className="bg-[#ff6b6b] hover:bg-[#fa5252] text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                                 >
                                     Dashboard

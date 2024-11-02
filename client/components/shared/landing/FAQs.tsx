@@ -90,26 +90,26 @@ const Accordion: React.FC<AccordionProps> = ({
                 delay: 0.2 * i,
                 duration: 0.8,
             }}
-            className="overflow-hidden rounded-lg border border-gray-300 dark:border-[#27272a]"
+            className="overflow-hidden rounded-lg border border-[#E2E8F0]"
         >
             <motion.header
                 initial={false}
                 animate={{
                     backgroundColor: isOpen
-                        ? "bg-gray-100 dark:bg-gray-800"
-                        : "bg-white dark:bg-gray-900",
+                        ? "#F1F5F9"
+                        : "#FFFFFF",
                 }}
                 onClick={() => setExpanded(isOpen ? null : i)}
                 className="flex cursor-pointer items-center justify-between p-4"
             >
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
+                <h3 className="text-lg font-medium text-[#1E293B]">
                     {title}
                 </h3>
                 <div>
                     <motion.svg
                         animate={{ rotate: isOpen ? 180 : 0 }}
                         transition={{ duration: 0.3 }}
-                        className="size-5 text-gray-500 dark:text-gray-400"
+                        className="size-5 text-[#64748B]"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -136,7 +136,7 @@ const Accordion: React.FC<AccordionProps> = ({
                         }}
                         transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
                     >
-                        <div className="bg-gray-500/10 p-4 text-gray-700 dark:bg-neutral-500/10 dark:text-gray-300">
+                        <div className="bg-[#F8FAFC] p-4 text-[#475569]">
                             {description}
                         </div>
                     </motion.section>

@@ -1,47 +1,59 @@
-import React, { useEffect, useRef, useState } from "react";
-import { motion, MotionValue, useScroll, useTransform } from "framer-motion";
-import { ArrowRight } from "lucide-react";
-import { useTheme } from "next-themes";
-import Image from "next/image";
-import LogoCloud from './Logo';
+"use client"
+
+import React, { useEffect, useRef, useState } from "react"
+import { motion, MotionValue, useScroll, useTransform } from "framer-motion"
+import { ArrowRight } from "lucide-react"
+import Image from "next/image"
+import LogoCarousel from './LogoCarousel'
+
+
+const icons = [
+    { label: "Azure", sourcePath: "/assets/Microsoft_Azure.svg" },
+    { label: "Next.js", sourcePath: "/assets/Nextjs-logo.svg" },
+    { label: "TypeScript", sourcePath: "/assets/ts-logo-256.svg" },
+    { label: "NodeJs", sourcePath: "/assets/nodejsStackedDark.svg" },
+    { label: "Prisma", sourcePath: "/assets/Prisma-IndigoLogo.svg" },
+    { label: "PostgreSQL", sourcePath: "/assets/postgresql-ar21.svg" },
+    { label: "Docker", sourcePath: "/assets/docker-logo-blue.svg" },
+    { label: "ClerkJs", sourcePath: "/assets/clerk-logo-dark-accent.svg" },
+    { label: "Pusher", sourcePath: "/assets/pusher-logo-0576fd4af5c38706f96f632235f3124a.svg" },
+]
 
 const Hero = () => {
-    const { theme } = useTheme();
-
     return (
         <>
             <ContainerScroll
                 titleComponent={
                     <>
                         <section>
-                            <div className="absolute inset-0 -z-10 h-[150vh] bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)] dark:bg-[linear-gradient(to_right,#161616_1px,transparent_1px),linear-gradient(to_bottom,#161616_1px,transparent_1px)]" />
+                            <div className="absolute inset-0 -z-10 h-[150vh] bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
                             <Particles
                                 className="absolute inset-0 -z-20"
                                 quantity={100}
-                                color={theme === "light" ? "#000000" : "#ffffff"}
+                                color="#000000"
                                 ease={20}
                                 refresh
                             />
                             <div>
                                 <div className="flex h-full flex-col items-center justify-center">
                                     <div className="mt-8 flex max-w-3xl flex-col items-center md:w-full">
-                                        <h1 className="text-center text-4xl font-bold text-neutral-800 dark:text-white md:text-6xl">
+                                        <h1 className="text-center text-4xl font-bold text-[#1E293B] md:text-6xl">
                                             Effortless Video Optimization {" "}
-                                            <span className="bg-gradient-to-r from-orange-500 to-red-600 bg-clip-text text-transparent">
+                                            <span className="bg-gradient-to-r from-[#3B82F6] to-[#2563EB] bg-clip-text text-transparent">
                                                 {" "}
                                                 for Any Screen{" "}
                                             </span>
                                         </h1>
-                                        <p className="my-6 text-center text-base text-gray-700 dark:text-gray-300 md:text-lg">
+                                        <p className="my-6 text-center text-base text-[#475569] md:text-lg">
                                             AdaptiveFlow transcodes and segments your videos, delivering adaptive streaming instantly
                                         </p>
 
-                                        <button className="relative mt-4 cursor-pointer rounded-[16px] border-none bg-[radial-gradient(circle_80px_at_80%_-10%,#ffffff,#181b1b)] p-[2px] text-lg transition-all duration-150">
-                                            <div className="absolute bottom-0 left-0 h-full w-[70px] rounded-[16px] bg-[radial-gradient(circle_60px_at_0%_100%,#ff9933,#ff6600,transparent)] shadow-[-10px_10px_30px_#ff660066] transition-all duration-150" />
+                                        <button className="relative mt-4 cursor-pointer rounded-[16px] border-none bg-[radial-gradient(circle_80px_at_80%_-10%,#ffffff,#1E293B)] p-[2px] text-lg transition-all duration-150">
+                                            <div className="absolute bottom-0 left-0 h-full w-[70px] rounded-[16px] bg-[radial-gradient(circle_60px_at_0%_100%,#3B82F6,#2563EB,transparent)] shadow-[-10px_10px_30px_#2563EB66] transition-all duration-150" />
                                             <div className="absolute right-0 top-0 z-[-1] h-3/5 w-[65%] rounded-[120px] shadow-[0_0_20px_#ffffff38] transition-all duration-150" />
-                                            <div className="relative z-[3] flex items-center gap-3 rounded-[14px] bg-[radial-gradient(circle_80px_at_80%_-50%,#777777,#0f1111)] px-4 py-2 text-white transition-all duration-150">
+                                            <div className="relative z-[3] flex items-center gap-3 rounded-[14px] bg-[radial-gradient(circle_80px_at_80%_-50%,#475569,#1E293B)] px-4 py-2 text-white transition-all duration-150">
                                                 Get Started <ArrowRight className="size-5" />
-                                                <div className="absolute inset-0 rounded-[14px] bg-[radial-gradient(circle_60px_at_0%_100%,#ff99331a,#ff660011,transparent)] transition-all duration-150" />
+                                                <div className="absolute inset-0 rounded-[14px] bg-[radial-gradient(circle_60px_at_0%_100%,#3B82F61a,#2563EB11,transparent)] transition-all duration-150" />
                                             </div>
                                         </button>
                                     </div>
@@ -49,7 +61,7 @@ const Hero = () => {
                                         <div
                                             style={{
                                                 background:
-                                                    "conic-gradient(from 230.29deg at 51.63% 52.16%, #ff6b00 0deg, #ff0000 67.5deg, #ff6b00 198.75deg, #ff3300 251.25deg, #ff4d00 301.88deg, #ff6b00 1turn)",
+                                                    "conic-gradient(from 230.29deg at 51.63% 52.16%, #3B82F6 0deg, #2563EB 67.5deg, #3B82F6 198.75deg, #1D4ED8 251.25deg, #2563EB 301.88deg, #3B82F6 1turn)",
                                             }}
                                             className="absolute inset-0 left-1/2 top-1/2 -z-10 size-2/4 -translate-x-1/2 -translate-y-1/2 opacity-20 blur-[10rem]"
                                         />
@@ -69,12 +81,12 @@ const Hero = () => {
                     src={"https://ui.metamorix.com/hero.png"}
                 />
             </ContainerScroll>
-            <LogoCloud />
+            <LogoCarousel icons={icons} />
         </>
-    );
-};
+    )
+}
 
-export default Hero;
+export default Hero
 
 interface MousePosition {
     x: number;
@@ -113,6 +125,7 @@ interface ParticlesProps {
     vx?: number;
     vy?: number;
 }
+
 function hexToRgb(hex: string): number[] {
     hex = hex.replace("#", "");
 
@@ -294,12 +307,11 @@ const Particles: React.FC<ParticlesProps> = ({
     const animate = () => {
         clearContext();
         circles.current.forEach((circle: Circle, i: number) => {
-            // Handle the alpha value
             const edge = [
-                circle.x + circle.translateX - circle.size, // distance from left edge
-                canvasSize.current.w - circle.x - circle.translateX - circle.size, // distance from right edge
-                circle.y + circle.translateY - circle.size, // distance from top edge
-                canvasSize.current.h - circle.y - circle.translateY - circle.size, // distance from bottom edge
+                circle.x + circle.translateX - circle.size,
+                canvasSize.current.w - circle.x - circle.translateX - circle.size,
+                circle.y + circle.translateY - circle.size,
+                canvasSize.current.h - circle.y - circle.translateY - circle.size,
             ];
             const closestEdge = edge.reduce((a, b) => Math.min(a, b));
             const remapClosestEdge = parseFloat(
@@ -324,19 +336,15 @@ const Particles: React.FC<ParticlesProps> = ({
 
             drawCircle(circle, true);
 
-            // circle gets out of the canvas
             if (
                 circle.x < -circle.size ||
                 circle.x > canvasSize.current.w + circle.size ||
                 circle.y < -circle.size ||
                 circle.y > canvasSize.current.h + circle.size
             ) {
-                // remove the circle from the array
                 circles.current.splice(i, 1);
-                // create a new circle
                 const newCircle = circleParams();
                 drawCircle(newCircle);
-                // update the circle position
             }
         });
         window.requestAnimationFrame(animate);
@@ -377,7 +385,8 @@ const ContainerScroll = ({
         return isMobile ? [0.7, 0.9] : [1.05, 1];
     };
 
-    const rotate = useTransform(scrollYProgress, [0, 1], [20, 0]);
+    const rotate = useTransform(scrollYProgress, [0, 1],
+        [20, 0]);
     const scale = useTransform(scrollYProgress, [0, 1], scaleDimensions());
     const translate = useTransform(scrollYProgress, [0, 1], [0, -100]);
 
@@ -417,6 +426,7 @@ const Header = ({ translate, titleComponent }: any) => {
 export const Card = ({
     rotate,
     scale,
+    translate,
     children,
 }: {
     rotate: MotionValue<number>;
@@ -432,7 +442,7 @@ export const Card = ({
             }}
             className="mx-auto -mt-12 h-auto w-full max-w-5xl rounded-[30px]"
         >
-            <div className="relative mx-auto w-full rounded-[32px] border border-neutral-300 bg-neutral-200 p-2 opacity-100 backdrop-blur-lg will-change-auto dark:border-neutral-700 dark:bg-neutral-800/50 md:p-4">
+            <div className="relative mx-auto w-full rounded-[32px] border border-[#E2E8F0] bg-[#F8FAFC] p-2 opacity-100 backdrop-blur-lg will-change-auto md:p-4">
                 {children}
             </div>
         </motion.div>

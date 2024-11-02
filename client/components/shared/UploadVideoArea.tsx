@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useEffect } from "react";
+import { useState, } from "react";
 import { useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -20,14 +20,14 @@ const UploadVideoArea = () => {
   const [percentage, setPercentage] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = (acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (file) {
       setVideoFile(file);
       setVideoPreview(URL.createObjectURL(file));
       setVideoName(file.name);
     }
-  }, []);
+  };
 
   const removeVideo = () => {
     setVideoFile(null);
@@ -35,36 +35,6 @@ const UploadVideoArea = () => {
     setVideoResolution(null);
     setVideoName(null);
   };
-
-  useEffect(() => {
-    if (videoPreview) {
-      const video = document.createElement("video");
-      video.src = videoPreview;
-
-      video.addEventListener("loadedmetadata", () => {
-        const { videoWidth, videoHeight } = video;
-
-        let quality = "Unknown";
-        if (videoWidth < 640 && videoHeight < 360) {
-          quality = "Less than 360p";
-        } else if (videoWidth === 640 && videoHeight === 360) {
-          quality = "360p";
-        } else if (videoWidth === 854 && videoHeight === 480) {
-          quality = "480p";
-        } else if (videoWidth === 1280 && videoHeight === 720) {
-          quality = "720p";
-        } else if (videoWidth === 1920 && videoHeight === 1080) {
-          quality = "1080p";
-        } else if (videoWidth === 3840 && videoHeight === 2160) {
-          quality = "4K";
-        } else if (videoWidth > 3840 && videoHeight > 2160) {
-          quality = "More than 4K";
-        }
-
-        setVideoResolution(quality);
-      });
-    }
-  }, [videoPreview]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -115,10 +85,7 @@ const UploadVideoArea = () => {
       toast.error(error.message || "An unexpected error occurred during upload.", { id: toastId });
     } finally {
       setLoading(false);
-      setVideoFile(null);
-      setVideoPreview(null);
-      setVideoResolution(null);
-      setVideoName(null);
+      removeVideo();
       setTimeout(() => {
         setPercentage(0);
       }, 5000);
@@ -127,15 +94,13 @@ const UploadVideoArea = () => {
 
   return (
     <Card className="overflow-hidden">
-      <CardHeader className="bg-gradient-to-r from-orange-400 to-orange-600">
+      <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600">
         <CardTitle className="text-white">Upload a Video</CardTitle>
       </CardHeader>
       <CardContent className="grid gap-6 p-6">
-
-        {/* @ts-ignore */}
         <motion.div
-          {...getRootProps()}
-          className={`relative flex items-center justify-center border-2 border-dashed rounded-lg p-8 transition-colors ${isDragActive ? "border-orange-400" : "border-orange-200"
+          {...(getRootProps() as any)}
+          className={`relative flex items-center justify-center border-2 border-dashed rounded-lg p-8 transition-colors ${isDragActive ? "border-blue-400" : "border-gray-200"
             }`}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
@@ -150,9 +115,9 @@ const UploadVideoArea = () => {
                 exit={{ opacity: 0 }}
                 className="text-center flex flex-col gap-y-4 justify-center items-center"
               >
-                <CloudUploadIcon className="w-12 h-12 text-orange-400" />
-                <div className="text-orange-600 font-medium">Drag and drop your video here</div>
-                <div className="text-sm text-orange-400">
+                <CloudUploadIcon className="w-12 h-12 text-blue-400" />
+                <div className="text-gray-600 font-medium">Drag and drop your video here</div>
+                <div className="text-sm text-gray-400">
                   or click to select a file
                 </div>
               </motion.div>
@@ -171,7 +136,7 @@ const UploadVideoArea = () => {
                 />
                 <motion.button
                   onClick={removeVideo}
-                  className="absolute top-2 right-2 p-1 bg-orange-500 bg-opacity-50 rounded-full hover:bg-opacity-75 transition-colors"
+                  className="absolute top-2 right-2 p-1 bg-red-500 bg-opacity-50 rounded-full hover:bg-opacity-75 transition-colors"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
@@ -185,40 +150,40 @@ const UploadVideoArea = () => {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-orange-600 font-medium"
+            className="text-blue-600 font-medium"
           >
             Video Quality: {videoResolution}
           </motion.div>
         )}
         <div className="grid sm:grid-cols-2 gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="video-name" className="text-orange-600">
+            <Label htmlFor="video-name" className="text-gray-600">
               Video Name
             </Label>
             <Input
               id="video-name"
               placeholder="Enter video name"
-              className="border-orange-200 text-orange-600 focus:ring-orange-400"
+              className="border-gray-200 text-gray-800 focus:ring-blue-400"
               disabled={!videoFile}
               value={videoName || ""}
               onChange={(e) => setVideoName(e.target.value)}
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="video-resolution" className="text-orange-600">
+            <Label htmlFor="video-resolution" className="text-gray-600">
               Video Resolution (Current Video)
             </Label>
             <Input
               id="video-resolution"
               value={videoResolution || "N/A"}
-              className="border-orange-200 text-orange-600 bg-white"
+              className="border-gray-200 text-gray-800 bg-gray-50"
               readOnly
             />
           </div>
         </div>
         <div className="flex gap-2">
           <Button
-            className="bg-gradient-to-r from-orange-400 to-orange-600 text-white hover:from-orange-500 hover:to-orange-700"
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700"
             onClick={submitVideo}
             disabled={!videoFile || loading}
           >
@@ -226,7 +191,7 @@ const UploadVideoArea = () => {
           </Button>
           <Button
             variant="outline"
-            className="border-orange-400 text-orange-600 hover:bg-orange-50"
+            className="border-blue-400 text-blue-600 hover:bg-blue-50"
             onClick={removeVideo}
           >
             Clear
