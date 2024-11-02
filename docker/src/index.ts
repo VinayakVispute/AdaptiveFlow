@@ -12,7 +12,8 @@ dotenv.config();
 const RESOLUTIONS: Resolution[] = [
   { name: "360p", width: 640, height: 360 },
   { name: "480p", width: 854, height: 480 },
-  // Additional resolutions can be added as needed
+  { name: "720p", width: 1280, height: 720 },
+  { name: "1080p", width: 1920, height: 1080 },
 ];
 
 type Resolution = {
@@ -68,12 +69,7 @@ async function uploadFileToBlob(
   containerClient: ContainerClient,
   blobName: string
 ) {
-  const randomId = generateRandomNumericId();
-  const finalPath = path.join(randomId, filePath);
-  console.log(
-    `Initiating upload for file: ${finalPath} to Azure blob with name: ${blobName}`
-  );
-  const blockBlobClient = containerClient.getBlockBlobClient(finalPath);
+  const blockBlobClient = containerClient.getBlockBlobClient(blobName);
   const fileStream = fs.createReadStream(filePath);
   const uploadOptions = { bufferSize: 4 * 1024 * 1024, maxBuffers: 20 };
 
@@ -135,7 +131,7 @@ async function processVideo(
           `Transcoding ${resolution.name}: ${progress.percent.toFixed(2)}% done`
         );
       })
-      .on("stderr", (stderrLine: any) => console.log(stderrLine))
+      // .on("stderr", (stderrLine: any) => console.log(stderrLine))
       .on("error", (error: any) => {
         console.error(
           `Error during ${resolution.name} transcoding: ${error.message}`
@@ -155,7 +151,7 @@ async function processVideo(
         await uploadFileToBlob(
           hlsPath,
           containerClient,
-          `${resolution.name}/playlist.m3u8`
+          `${inputVideoName}-transcoded/${resolution.name}/playlist.m3u8`
         );
 
         for (const segmentFile of fs
@@ -167,7 +163,7 @@ async function processVideo(
           await uploadFileToBlob(
             path.join(resolutionOutputDir, segmentFile),
             containerClient,
-            `${resolution.name}/${segmentFile}`
+            `${inputVideoName}-transcoded/${resolution.name}/${segmentFile}`
           );
         }
 
@@ -220,7 +216,7 @@ async function createMasterPlaylist(
   await uploadFileToBlob(
     masterPlaylistPath,
     outputContainerClient,
-    `index.m3u8`
+    `${inputVideoName}-transcoded/index.m3u8`
   );
   console.log("Master playlist uploaded successfully.");
 }
