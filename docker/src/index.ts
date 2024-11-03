@@ -11,9 +11,9 @@ dotenv.config();
 
 const RESOLUTIONS: Resolution[] = [
   { name: "360p", width: 640, height: 360 },
-  { name: "480p", width: 854, height: 480 },
-  { name: "720p", width: 1280, height: 720 },
-  { name: "1080p", width: 1920, height: 1080 },
+  // { name: "480p", width: 854, height: 480 },
+  // { name: "720p", width: 1280, height: 720 },
+  // { name: "1080p", width: 1920, height: 1080 },
 ];
 
 type Resolution = {
@@ -219,13 +219,13 @@ async function createMasterPlaylist(
   );
 
   await fs.promises.writeFile(masterPlaylistPath, masterPlaylistContent);
-  await uploadFileToBlob(
+  const returnedUrl = await uploadFileToBlob(
     masterPlaylistPath,
     outputContainerClient,
     `${randomId}/index.m3u8`
   );
   console.log("Master playlist uploaded successfully.");
-  return;
+  return returnedUrl;
 }
 
 async function init() {
@@ -246,14 +246,14 @@ async function init() {
     const containerClient = blobServiceClient.getContainerClient(BUCKET_NAME);
     const blobClient = containerClient.getBlobClient(INPUT_VIDEO);
 
-    // const { metadata } = await blobClient.getProperties();
+    const { metadata } = await blobClient.getProperties();
 
-    // if (!metadata || !metadata.uniqueId) {
-    //   throw new Error("No metadata found for the video");
-    // }
+    if (!metadata || !metadata.uniqueid) {
+      throw new Error("No metadata found for the video");
+    }
 
-    // uniqueId = metadata?.uniqueId;
-    uniqueId = generateRandomNumericId();
+    uniqueId = metadata?.uniqueid;
+    // uniqueId = generateRandomNumericId();
     const randomId = generateRandomNumericId(15);
     await blobClient.downloadToFile(downloadFilePath);
     console.log("Video downloaded successfully.");
@@ -305,7 +305,13 @@ async function init() {
     await sendWebhook({
       success: true,
       message: "Video processing completed successfully",
-      data: { returnedUrl, uniqueId },
+      data: {
+        transcodedVideo: {
+          name: `${sanitizeFileName(inputVideoName)}-transcoded`,
+          url: returnedUrl,
+        },
+        uniqueId,
+      },
     });
   } catch (error: any) {
     console.error("An error occurred during processing:", error.message);
