@@ -21,7 +21,7 @@ export const createdUploadedVideoInDb = async (
       };
     }
     const userId = user.privateMetadata.userId as string;
-    const { id, title, videoUrl, resolution } = params;
+    const { id, title, videoUrl } = params;
 
     // Use a transaction to combine both operations atomically
     const result = await prisma.$transaction(async (prisma) => {
@@ -30,7 +30,6 @@ export const createdUploadedVideoInDb = async (
         data: {
           title: title,
           videoUrl: videoUrl,
-          resolution: resolution,
         },
       });
 
@@ -128,7 +127,7 @@ export const fetchUploadedVideos = async (): Promise<{
 export const createAndLinkTranscodedVideos = async (
   uniqueId: string,
   status: Status,
-  videoData: Array<{ name: string; url: string; resolution: string }>
+  videoData: { name: string; url: string }
 ) => {
   try {
     const uploadedVideo = await prisma.uploadedVideo.findUnique({
@@ -141,18 +140,17 @@ export const createAndLinkTranscodedVideos = async (
         },
       },
     });
-
+    console.log("uploadedVideo", uploadedVideo);
     if (!uploadedVideo || !uploadedVideo.userId) {
       throw new Error("Failed to get user id");
     }
     const userId = uploadedVideo.user?.clerkId;
 
-    const createdVideos = await prisma.video.createManyAndReturn({
-      data: videoData.map((video) => ({
-        title: video.name,
-        videoUrl: video.url,
-        resolution: video.resolution,
-      })),
+    const createdVideos = await prisma.video.create({
+      data: {
+        title: videoData.name,
+        videoUrl: videoData.url,
+      },
       select: {
         id: true,
       },
@@ -160,20 +158,20 @@ export const createAndLinkTranscodedVideos = async (
 
     console.log("createdVideos", createdVideos);
 
-    if (!createdVideos || createdVideos.length === 0) {
+    if (!createdVideos) {
       throw new Error("Failed to create videos");
     }
 
     // Extract the video IDs (this will depend on the database being used)
-    const videoIds = createdVideos.map((video) => video.id);
-    console.log("videoIds", videoIds);
+    const videoId = createdVideos.id;
+    console.log("videoId", videoId);
 
     // Step 2: Create multiple TranscodedVideo records referencing the video IDs
 
-    const transcodedVideosData = videoIds.map((videoId) => ({
+    const transcodedVideosData = {
       sourceVideoId: uniqueId,
       videoId: videoId,
-    }));
+    };
 
     console.log("transcodedVideosData", transcodedVideosData);
     const { count } = await prisma.transcodedVideo.createMany({

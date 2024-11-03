@@ -21,7 +21,6 @@ const VideoResolutionOption = ({ videoDetails }: { videoDetails: Video }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4 transition-all duration-300 hover:shadow-lg">
-      <div className="text-lg font-medium text-[#0ca678] mb-2">{videoDetails.resolution}</div>
       <div className="flex items-center gap-2">
         <Link
           href={videoDetails.videoUrl}
@@ -56,7 +55,9 @@ const VideoResolutionOption = ({ videoDetails }: { videoDetails: Video }) => {
       </div>
       <Dialog open={isShareOpen} onOpenChange={setIsShareOpen}>
         <DialogContent className="sm:max-w-[425px] bg-[#e6fcf5]">
-          <h2 className="text-xl font-semibold mb-4 text-[#0ca678]">Share Video</h2>
+          <h2 className="text-xl font-semibold mb-4 text-[#0ca678]">
+            Share Video
+          </h2>
           <div className="flex flex-col space-y-2">
             <div className="flex items-center space-x-2">
               <input
@@ -67,10 +68,11 @@ const VideoResolutionOption = ({ videoDetails }: { videoDetails: Video }) => {
               />
               <Button
                 onClick={handleCopyLink}
-                className={`min-w-[100px] ${isCopied
-                  ? "bg-[#0ca678] text-white"
-                  : "bg-white text-[#0ca678] border-[#0ca678]"
-                  } transition-all duration-300`}
+                className={`min-w-[100px] ${
+                  isCopied
+                    ? "bg-[#0ca678] text-white"
+                    : "bg-white text-[#0ca678] border-[#0ca678]"
+                } transition-all duration-300`}
               >
                 {isCopied ? (
                   <>

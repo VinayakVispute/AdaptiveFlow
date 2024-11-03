@@ -33,21 +33,20 @@ model Video {
     title           String
     videoUrl        String
     uploadedAt      DateTime          @default(now())
-    resolution      String
     UploadedVideo   UploadedVideo[]
     TranscodedVideo TranscodedVideo[]
 }
 
 model UploadedVideo {
-    id              String            @id
-    user            User              @relation(fields: [userId], references: [id])
+    id              String           @id
+    user            User             @relation(fields: [userId], references: [id])
     userId          String
-    status          Status            @default(PENDING)
-    video           Video             @relation(fields: [videoId], references: [id])
+    status          Status           @default(PENDING)
+    video           Video            @relation(fields: [videoId], references: [id])
     videoId         Int
-    TranscodedVideo TranscodedVideo[]
-    uploadedAt      DateTime          @updatedAt
-    createdAt       DateTime          @default(now())
+    TranscodedVideo TranscodedVideo?
+    uploadedAt      DateTime         @updatedAt
+    createdAt       DateTime         @default(now())
     Notifications   Notifications[]
 }
 
@@ -55,7 +54,7 @@ model TranscodedVideo {
     id            String        @id @default(uuid())
     transcodedAt  DateTime      @default(now())
     sourceVideo   UploadedVideo @relation(fields: [sourceVideoId], references: [id])
-    sourceVideoId String
+    sourceVideoId String        @unique
     video         Video         @relation(fields: [videoId], references: [id])
     videoId       Int
     uploadedAt    DateTime      @updatedAt
