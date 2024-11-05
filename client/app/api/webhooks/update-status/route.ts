@@ -40,7 +40,7 @@ export async function POST(req: Request) {
       });
       return NextResponse.json(
         { message: "Invalid request body" },
-        { status: 400 }
+        { status: 400, headers: { "Access-Control-Allow-Origin": "*" } }
       );
     }
 
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
       );
       return NextResponse.json(
         { message: "Invalid data in request body" },
-        { status: 400 }
+        { status: 400, headers: { "Access-Control-Allow-Origin": "*" } }
       );
     }
 
@@ -75,7 +75,7 @@ export async function POST(req: Request) {
       console.log("Status update in database failed.");
       return NextResponse.json(
         { message: "Failed to update status" },
-        { status: 500 }
+        { status: 500, headers: { "Access-Control-Allow-Origin": "*" } }
       );
     }
 
@@ -87,7 +87,7 @@ export async function POST(req: Request) {
       console.log("Failed to retrieve userId after status update.");
       return NextResponse.json(
         { message: "Failed to get user id" },
-        { status: 500 }
+        { status: 500, headers: { "Access-Control-Allow-Origin": "*" } }
       );
     }
 
@@ -100,7 +100,10 @@ export async function POST(req: Request) {
     });
 
     console.log("Status update completed successfully. Returning response.");
-    return NextResponse.json({ message: "Status updated" }, { status: 200 });
+    return NextResponse.json(
+      { message: "Status updated" },
+      { status: 200, headers: { "Access-Control-Allow-Origin": "*" } }
+    );
   } catch (error) {
     // Handle any unexpected errors
     console.error("Error handling status update request:", error);
@@ -116,7 +119,19 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       { message: "Internal server error" },
-      { status: 500 }
+      { status: 500, headers: { "Access-Control-Allow-Origin": "*" } }
     );
   }
+}
+
+// Handle CORS for preflight requests
+export async function OPTIONS() {
+  return NextResponse.json(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    },
+  });
 }
