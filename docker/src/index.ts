@@ -212,18 +212,48 @@ async function createMasterPlaylist(
     __dirname,
     `${sanitizeFileName(inputVideoName)}-transcoded/index.m3u8`
   );
-  const masterPlaylistContent = `#EXTM3U\n${masterPlaylist.join("")}`;
 
+  const masterPlaylistContent = `#EXTM3U\n${masterPlaylist.join("")}`;
   console.log(
     `Creating master playlist for video: ${sanitizeFileName(inputVideoName)}`
   );
 
-  await fs.promises.writeFile(masterPlaylistPath, masterPlaylistContent);
+  // Create formatted playlist entries with CODECS
+  const playlistEntries = RESOLUTIONS.map((resolution) => {
+    let codecs;
+    switch (resolution.name) {
+      case "360p":
+        codecs = `"mp4a.40.5,avc1.42000d"`;
+        break;
+      case "480p":
+        codecs = `"mp4a.40.2,avc1.64001f"`;
+        break;
+      case "720p":
+        codecs = `"mp4a.40.2,avc1.64001f"`;
+        break;
+      case "1080p":
+        codecs = `"mp4a.40.2,avc1.640028"`;
+        break;
+      default:
+        codecs = `"mp4a.40.2,avc1.640028"`;
+    }
+
+    const bandwidth = Math.round(resolution.width * resolution.height * 1.5);
+    return `#EXT-X-STREAM-INF:BANDWIDTH=${bandwidth},RESOLUTION=${resolution.width}x${resolution.height},CODECS=${codecs}\n${resolution.name}/playlist.m3u8\n`;
+  });
+
+  const masterPlaylistFinalContent = `#EXTM3U\n${playlistEntries.join("")}`;
+
+  // Write the formatted master playlist content to file
+  await fs.promises.writeFile(masterPlaylistPath, masterPlaylistFinalContent);
+
+  // Upload master playlist to Azure Blob Storage
   const returnedUrl = await uploadFileToBlob(
     masterPlaylistPath,
     outputContainerClient,
     `${randomId}/index.m3u8`
   );
+
   console.log("Master playlist uploaded successfully.");
   return returnedUrl;
 }

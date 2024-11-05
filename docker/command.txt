@@ -1,6 +1,9 @@
-docker build -t adaptive_flow .
+docker build -t adaptive-flow .
 
 
-docker run --env-file ./.env adaptive_flow
-docker run --env-file ./.env -it adaptive_flow /bin/sh
+docker run --env-file ./.env adaptive-flow
+docker run --env-file ./.env -it adaptive-flow /bin/sh
 
+docker tag adaptive_flow adaptiveflow.azurecr.io/adaptive-flow
+
+docker push adaptiveflow.azurecr.io/adaptive-flow
