@@ -23,8 +23,7 @@ const SUBSCRIPTION_ID = process.env.SUBSCRIPTION_ID;
 const ACR_USERNAME = process.env.ACR_USERNAME;
 const ACR_PASSWORD = process.env.ACR_PASSWORD;
 const QUEUE_NAME = process.env.QUEUE_NAME;
-const WEBHOOK_UPLOADSTATUS_URL =
-  "https://unbiased-carefully-marmot.ngrok-free.app";
+const WEBHOOK_UPLOADSTATUS_URL = process.env.WEBHOOK_UPLOADSTATUS_URL;
 const AZURE_TENANT_ID = process.env.AZURE_TENANT_ID;
 const AZURE_CLIENT_ID = process.env.AZURE_CLIENT_ID;
 const AZURE_CLIENT_SECRET = process.env.AZURE_CLIENT_SECRET;
