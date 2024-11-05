@@ -11,7 +11,6 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { sanitizeFileName } from "@/lib/utils";
 
 const UploadVideoArea: React.FC = () => {
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -71,7 +70,6 @@ const UploadVideoArea: React.FC = () => {
     onDrop,
     accept: {
       "video/mp4": [".mp4"],
-      "video/x-matroska": [".mkv"],
     },
     multiple: false,
     disabled: videoFile !== null,
@@ -97,7 +95,7 @@ const UploadVideoArea: React.FC = () => {
     try {
       const videoId = `${Date.now()}-${videoName}`;
       const result = await uploadVideoToAzureDirectly(
-        sanitizeFileName(videoName),
+        videoName,
         videoFile,
         videoResolution,
         videoId,

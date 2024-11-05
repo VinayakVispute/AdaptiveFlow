@@ -1,16 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import VideoPlayer from "./VideoPlayer";
-import { Eye, Download, Copy, Check } from "lucide-react";
+import { Eye, Copy, Check } from "lucide-react";
 import { Video } from "@prisma/client";
 
 const VideoResolutionOption = ({ videoDetails }: { videoDetails: Video }) => {
   const [isShareOpen, setIsShareOpen] = useState(false);
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
   const handleCopyLink = () => {
@@ -22,31 +20,19 @@ const VideoResolutionOption = ({ videoDetails }: { videoDetails: Video }) => {
   return (
     <div className="bg-white rounded-lg shadow-md p-4 transition-all duration-300 hover:shadow-lg">
       <div className="flex items-center gap-2">
-        <Link
-          href={videoDetails.videoUrl}
-          className="text-sm text-[#12b886] hover:text-[#0ca678] transition-colors duration-300"
-          prefetch={false}
-        >
-          <Button variant="outline" size="sm" className="w-full sm:w-auto">
-            <Download className="h-4 w-4 mr-2" />
-            Download
-          </Button>
-        </Link>
         <Dialog>
           <DialogTrigger asChild>
             <Button
               variant="outline"
               size="sm"
-              className="w-full sm:w-auto bg-gradient-to-r from-[#0ca678] to-[#12b886] text-white border-none hover:from-[#12b886] hover:to-[#0ca678] transition-all duration-300"
+              className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-blue-600 text-white border-none hover:from-blue-600 hover:to-blue-700 transition-all duration-300"
             >
               <Eye className="h-4 w-4 mr-2" />
               <span>View</span>
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[800px] bg-[#e6fcf5]">
+          <DialogContent className="sm:max-w-[800px] bg-blue-50">
             <VideoPlayer
-              isVideoLoaded={isVideoLoaded}
-              setIsVideoLoaded={setIsVideoLoaded}
               setIsShareOpen={setIsShareOpen}
               videoDetails={videoDetails}
             />
@@ -54,8 +40,8 @@ const VideoResolutionOption = ({ videoDetails }: { videoDetails: Video }) => {
         </Dialog>
       </div>
       <Dialog open={isShareOpen} onOpenChange={setIsShareOpen}>
-        <DialogContent className="sm:max-w-[425px] bg-[#e6fcf5]">
-          <h2 className="text-xl font-semibold mb-4 text-[#0ca678]">
+        <DialogContent className="sm:max-w-[425px] bg-blue-50">
+          <h2 className="text-xl font-semibold mb-4 text-blue-600">
             Share Video
           </h2>
           <div className="flex flex-col space-y-2">
@@ -64,15 +50,14 @@ const VideoResolutionOption = ({ videoDetails }: { videoDetails: Video }) => {
                 type="text"
                 value={videoDetails.videoUrl}
                 readOnly
-                className="w-full p-2 border rounded bg-white text-[#12b886]"
+                className="w-full p-2 border rounded bg-white text-blue-600"
               />
               <Button
                 onClick={handleCopyLink}
-                className={`min-w-[100px] ${
-                  isCopied
-                    ? "bg-[#0ca678] text-white"
-                    : "bg-white text-[#0ca678] border-[#0ca678]"
-                } transition-all duration-300`}
+                className={`min-w-[100px] ${isCopied
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-blue-600 border-blue-600"
+                  } transition-all duration-300`}
               >
                 {isCopied ? (
                   <>
