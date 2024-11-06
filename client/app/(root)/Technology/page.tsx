@@ -78,7 +78,7 @@ export default function AdaptiveFlowPage() {
             <FeatureCard
               icon={<Lock className="h-8 w-8 text-yellow-500" />}
               title="Enhanced Security"
-              description="Robust protection for video assets and user data, leveraging Azure's advanced security features."
+              description="Robust protection for video assets and user data, leveraging Azure 's advanced security features."
             />
             <FeatureCard
               icon={<Zap className="h-8 w-8 text-orange-500" />}
@@ -205,9 +205,9 @@ export default function AdaptiveFlowPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-700 dark:text-gray-300">
-                  Built on Azure's robust cloud services, AdaptiveFlow scales
-                  effortlessly to meet your growing audience demands without
-                  compromising performance.
+                  Built on Azure&apos;s robust cloud services, AdaptiveFlow
+                  scales effortlessly to meet your growing audience demands
+                  without compromising performance.
                 </p>
               </CardContent>
             </Card>
@@ -274,7 +274,15 @@ export default function AdaptiveFlowPage() {
   );
 }
 
-function FeatureCard({ icon, title, description }) {
+function FeatureCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: JSX.Element;
+  title: string;
+  description: string;
+}) {
   return (
     <Card className="flex flex-col h-full bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300">
       <CardHeader>
@@ -294,7 +302,7 @@ function FeatureCard({ icon, title, description }) {
   );
 }
 
-function TechLogo({ src, alt }) {
+function TechLogo({ src, alt }: { src: string; alt: string }) {
   return (
     <div className="flex items-center justify-center w-32 h-32 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
       <Image
@@ -308,7 +316,15 @@ function TechLogo({ src, alt }) {
   );
 }
 
-function ArchitectureCard({ title, description, icon }) {
+function ArchitectureCard({
+  title,
+  description,
+  icon,
+}: {
+  title: string;
+  description: string;
+  icon: JSX.Element;
+}) {
   return (
     <Card className="bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300">
       <CardHeader>

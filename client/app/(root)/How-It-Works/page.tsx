@@ -136,7 +136,15 @@ export default function AdaptiveFlowPage() {
   );
 }
 
-function WorkflowStep({ icon, title, description }) {
+function WorkflowStep({
+  icon,
+  title,
+  description,
+}: {
+  icon: JSX.Element;
+  title: string;
+  description: string;
+}) {
   return (
     <Card className="bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300">
       <CardHeader>
@@ -156,7 +164,7 @@ function WorkflowStep({ icon, title, description }) {
   );
 }
 
-function TechLogo({ src, alt }) {
+function TechLogo({ src, alt }: { src: string; alt: string }) {
   return (
     <div className="flex items-center justify-center">
       <Image
@@ -170,7 +178,15 @@ function TechLogo({ src, alt }) {
   );
 }
 
-function BenefitCard({ icon, title, description }) {
+function BenefitCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: JSX.Element;
+  title: string;
+  description: string;
+}) {
   return (
     <Card className="bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-shadow duration-300">
       <CardHeader>
