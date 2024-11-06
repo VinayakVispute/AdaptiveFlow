@@ -2,15 +2,15 @@
 
 # AdaptiveFlow 🎥
 
-![AdaptiveFlow Banner](https://v0.dev/placeholder.svg?height=400&width=800)
+![AdaptiveFlow Banner](./client/public/assets/header-workflow.svg)
 
 **Your go-to solution for adaptive video streaming and seamless playback across devices.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Made with ❤️ by Vinayak Vispute](https://img.shields.io/badge/Made%20with%20%E2%9D%A4%EF%B8%8F%20by-Vinayak%20Vispute-red)](https://github.com/yourusername)
+[![Made with ❤️ by Vinayak Vispute](https://img.shields.io/badge/Made%20with%20%E2%9D%A4%EF%B8%8F%20by-Vinayak%20Vispute-red)](https://github.com/VinayakVispute)
 
-[![Live Version](https://img.shields.io/badge/Live%20Version-%2300C853.svg?style=for-the-badge&logo=firefox)](https://adaptiveflow.example.com)
-[![Workflow Design](https://img.shields.io/badge/Workflow%20Design-%23FF4081.svg?style=for-the-badge&logo=draw.io)](https://workflowdesign.example.com)
+[![Live Version](https://img.shields.io/badge/Live%20Version-%2300C853.svg?style=for-the-badge&logo=firefox)]([https://adaptiveflow.example.com](https://adaptiveflow.visputevinayak.co/))
+[![Workflow Design](https://img.shields.io/badge/Workflow%20Design-%23FF4081.svg?style=for-the-badge&logo=draw.io)](./client/public/assets/header-workflow.svg)
 
 </div>
 
