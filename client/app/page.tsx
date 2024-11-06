@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React from "react";
 import Navbar from "@/components/shared/landing/Navbar";
 import Hero from "@/components/shared/landing/Herosection";

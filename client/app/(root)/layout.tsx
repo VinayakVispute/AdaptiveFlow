@@ -1,18 +1,15 @@
-
-import DashboardNavbar from "@/components/shared/DashboardNavbar";
-import { NotificationHistoryProvider } from "@/context/NotificationHistoryContext";
+import React from "react";
+import Navbar from "../../components/shared/landing/Navbar";
 
 export default function RootLayout({
-    children,
+  children,
 }: Readonly<{
-    children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-    return (
-        <NotificationHistoryProvider>
-            <DashboardNavbar />
-            <div className="flex flex-col h-screen bg-white text-black mb-8">
-                {children}
-            </div>
-        </NotificationHistoryProvider>
-    );
+  return (
+    <>
+      <Navbar />
+      {children}
+    </>
+  );
 }
