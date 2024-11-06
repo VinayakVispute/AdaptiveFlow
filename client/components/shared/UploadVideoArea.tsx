@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, MouseEvent } from "react";
 import { useDropzone } from "react-dropzone";
 import { motion, AnimatePresence } from "framer-motion";
 import { CloudUpload, X } from "lucide-react";
@@ -133,9 +133,18 @@ const UploadVideoArea: React.FC = () => {
         {/* @ts-ignore */}
         <motion.div
           {...getRootProps()}
-          className={`relative flex items-center justify-center border-2 border-dashed rounded-lg p-8 transition-colors ${
-            isDragActive ? "border-[#4285F4]" : "border-blue-200"
-          }`}
+          style={{
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderWidth: "2px",
+            borderStyle: "dashed",
+            borderRadius: "0.5rem", // rounded-lg is roughly 0.5rem
+            padding: "2rem", // p-8 is 2rem
+            transition: "border-color 0.3s ease",
+            borderColor: isDragActive ? "#4285F4" : "#BFDBFE", // #BFDBFE is equivalent to 'blue-200'
+          }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
@@ -147,7 +156,14 @@ const UploadVideoArea: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="text-center flex flex-col gap-y-4 justify-center items-center"
+                style={{
+                  textAlign: "center",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1rem", // gap-y-4 is approximately 1rem
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
               >
                 <CloudUpload className="w-12 h-12 text-[#4285F4]" />
                 <div className="text-blue-900 font-medium">
@@ -163,24 +179,34 @@ const UploadVideoArea: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="relative"
+                style={{
+                  position: "relative",
+                }}
               >
                 <video
                   src={videoPreview}
                   className="max-h-40 rounded-lg"
                   controls
                 />
-                <motion.button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeVideo();
+                <motion.div
+                  style={{
+                    position: "absolute",
+                    top: "0.5rem",
+                    right: "0.5rem",
                   }}
-                  className="absolute top-2 right-2 p-1 bg-red-500 bg-opacity-50 rounded-full hover:bg-opacity-75 transition-colors"
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
-                  <X className="w-5 h-5 text-white" />
-                </motion.button>
+                  <button
+                    onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                      e.stopPropagation();
+                      removeVideo();
+                    }}
+                    className="p-1 bg-red-500 bg-opacity-50 rounded-full hover:bg-opacity-75 transition-colors"
+                  >
+                    <X className="w-5 h-5 text-white" />
+                  </button>
+                </motion.div>
               </motion.div>
             )}
           </AnimatePresence>
@@ -189,7 +215,10 @@ const UploadVideoArea: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-[#4285F4] font-medium"
+            style={{
+              color: "#4285F4",
+              fontWeight: 500,
+            }}
           >
             Video Quality: {videoResolution}
           </motion.div>
@@ -240,7 +269,9 @@ const UploadVideoArea: React.FC = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="w-full"
+            style={{
+              width: "100%",
+            }}
           >
             <Progress value={percentage} className="w-full" />
           </motion.div>

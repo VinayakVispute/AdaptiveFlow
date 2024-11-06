@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
-import { Menu, Sun, Moon, LogOut } from "lucide-react";
+import { Menu, Sun, Moon, LogOut, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Image from "next/image";
@@ -13,15 +13,19 @@ import {
   SignInButton,
   SignUpButton,
   useClerk,
+  useAuth,
 } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState("/");
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { scrollY } = useScroll();
-  const { signOut } = useClerk();
+  const { signOut } = useAuth();
+  const router = useRouter();
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setIsScrolled(latest > 50);
@@ -58,22 +62,32 @@ export default function Navbar() {
     text: "#1E293B",
   };
 
-  const handleLogout = () => {
-    signOut();
-  };
+  async function handleLogout() {
+    setIsLoggingOut(true);
+    try {
+      router.push("/");
+      await signOut();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  }
 
   return (
     <motion.nav
-      className={`fixed top-0 left-0 right-0 z-50 ${
-        isScrolled
-          ? `bg-opacity-80 backdrop-blur-md shadow-md`
-          : "bg-transparent"
-      } transition-all duration-300`}
       style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
         backgroundColor: isScrolled ? colors.background : "transparent",
+        backdropFilter: isScrolled ? "blur(10px)" : "none", // blur effect for backdrop-blur-md
+        boxShadow: isScrolled ? "0px 4px 6px rgba(0, 0, 0, 0.1)" : "none", // shadow-md approximation
+        transition: "all 0.3s ease", // transition-all and duration-300
+        opacity: isScrolled ? 0.8 : 1, // bg-opacity-80 approximation
       }}
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
       <div className="container mx-auto px-4">
@@ -110,7 +124,7 @@ export default function Navbar() {
           </div>
           <SignedOut>
             <div className="hidden md:flex items-center space-x-2">
-              <SignInButton>
+              <SignInButton forceRedirectUrl="/Dashboard">
                 <Button
                   variant="ghost"
                   className="transition-colors"
@@ -159,9 +173,14 @@ export default function Navbar() {
                 variant="ghost"
                 className="transition-colors"
                 style={{ color: colors.text }}
+                disabled={isLoggingOut}
               >
-                <LogOut className="h-5 w-5 mr-2" />
-                Logout
+                {isLoggingOut ? (
+                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                ) : (
+                  <LogOut className="h-5 w-5 mr-2" />
+                )}
+                {isLoggingOut ? "Logging out..." : "Logout"}
               </Button>
             </div>
           </SignedIn>
@@ -215,7 +234,7 @@ export default function Navbar() {
                   </Link>
                 ))}
                 <SignedOut>
-                  <SignInButton>
+                  <SignInButton forceRedirectUrl="/Dashboard">
                     <Button
                       variant="ghost"
                       className="w-full justify-start transition-colors"
@@ -268,9 +287,14 @@ export default function Navbar() {
                     variant="ghost"
                     className="w-full justify-start transition-colors"
                     style={{ color: colors.text }}
+                    disabled={isLoggingOut}
                   >
-                    <LogOut className="h-5 w-5 mr-2" />
-                    Logout
+                    {isLoggingOut ? (
+                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    ) : (
+                      <LogOut className="h-5 w-5 mr-2" />
+                    )}
+                    {isLoggingOut ? "Logging out..." : "Logout"}
                   </Button>
                 </SignedIn>
               </div>

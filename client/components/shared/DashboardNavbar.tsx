@@ -70,7 +70,7 @@ export default function DashboardNavbar() {
             </div>
           </SignedIn>
           <SignedOut>
-            <SignInButton mode="modal">
+            <SignInButton forceRedirectUrl="/Dashboard">
               <Button
                 variant="ghost"
                 className="text-white hover:bg-blue-600/50 transition-all duration-300 hover:scale-105"

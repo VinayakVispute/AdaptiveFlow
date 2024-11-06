@@ -1,9 +1,9 @@
 "use client";
-import { NotificationState } from "@/interface";
+
+import { NotificationState, UploadedVideo } from "@/interface";
 import { fetchNotifications } from "@/lib/action/notification.action";
 import { fetchUploadedVideos } from "@/lib/action/video.action";
 import { Status } from "@prisma/client";
-import { UploadedVideo } from "@/interface";
 import Pusher from "pusher-js";
 import {
   createContext,
@@ -15,7 +15,16 @@ import {
 import { useAuth } from "@clerk/nextjs";
 import toast from "react-hot-toast";
 
-const NotificationHistoryContext = createContext<any | null>(null);
+interface NotificationHistoryContextType {
+  videoData: { uploadedVideos: UploadedVideo[] } | null;
+  notifications: NotificationState[];
+  error: string | null;
+  isLoading: boolean;
+  fetchVideos: () => Promise<void>;
+}
+
+const NotificationHistoryContext =
+  createContext<NotificationHistoryContextType | null>(null);
 
 export const NotificationHistoryProvider = ({
   children,
@@ -25,21 +34,14 @@ export const NotificationHistoryProvider = ({
   const [videoData, setVideoData] = useState<{
     uploadedVideos: UploadedVideo[];
   } | null>(null);
-  const [notifications, setNotifications] = useState<NotificationState[] | []>(
-    []
-  );
+  const [notifications, setNotifications] = useState<NotificationState[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const pusher_Key = process.env.NEXT_PUBLIC_PUSHER_PUSHER_KEY || "";
-  const pusher_Cluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER || "";
-
   const { userId, isSignedIn } = useAuth();
 
-  if (!isSignedIn) {
-    console.error("User not signed in");
-    return null;
-  }
+  const pusher_Key = process.env.NEXT_PUBLIC_PUSHER_PUSHER_KEY || "";
+  const pusher_Cluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER || "";
 
   const fetchData = async () => {
     console.log("Fetching video and notification data...");
@@ -83,30 +85,33 @@ export const NotificationHistoryProvider = ({
   };
 
   useEffect(() => {
-    console.log("useEffect for initial data fetch triggered");
-    fetchData();
+    if (isSignedIn) {
+      console.log("useEffect for initial data fetch triggered");
+      fetchData();
+    }
 
     return () => {
       console.log("Cleaning up data and notifications...");
       setVideoData(null);
       setNotifications([]);
     };
-  }, []); // Run on mount
+  }, [isSignedIn]);
 
   useEffect(() => {
+    if (!isSignedIn || !userId) return;
+
     console.log("useEffect for Pusher subscription triggered");
 
     const pusher = new Pusher(pusher_Key, {
       cluster: pusher_Cluster,
     });
 
-    const channel = pusher.subscribe(userId); // Subscribe to user-specific channel
+    const channel = pusher.subscribe(userId);
     console.log("Subscribed to Pusher channel:", userId);
 
     channel.bind("statusUpdate", async (update: any) => {
       console.log("Received update from Pusher:", update);
 
-      // Update video status based on Pusher update
       setVideoData((prevData) => {
         if (!prevData) return prevData;
 
@@ -124,7 +129,6 @@ export const NotificationHistoryProvider = ({
         return { uploadedVideos: updatedVideos };
       });
 
-      // Re-fetch notifications when status is updated
       const notificationResponse = await fetchNotifications();
       if (notificationResponse.success) {
         console.log("Notifications updated after status update");
@@ -143,9 +147,13 @@ export const NotificationHistoryProvider = ({
 
     return () => {
       console.log("Unsubscribing from Pusher channel:", userId);
-      pusher.unsubscribe(userId); // Unsubscribe from the same channel
+      pusher.unsubscribe(userId);
     };
-  }, [userId]); // Run when `userId` changes
+  }, [isSignedIn, userId, pusher_Key, pusher_Cluster]);
+
+  if (!isSignedIn) {
+    return null;
+  }
 
   return (
     <NotificationHistoryContext.Provider

@@ -70,24 +70,30 @@ export default function PolicyPage() {
       <main className="flex-grow py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto space-y-8">
           <motion.div
-            className="text-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h1 className="text-4xl font-bold text-indigo-800">
-              Account Policies
-            </h1>
-            <p className="mt-2 text-xl text-indigo-600">
-              Review your account status and policies
-            </p>
+            <div className="text-center">
+              <h1 className="text-4xl font-bold text-indigo-800">
+                Account Policies
+              </h1>
+              <p className="mt-2 text-xl text-indigo-600">
+                Review your account status and policies
+              </p>
+            </div>
           </motion.div>
 
           <AnimatePresence mode="wait">
             {isLoading ? (
               <motion.div
                 key="loading"
-                className="flex justify-center items-center h-32"
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "8rem",
+                }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -97,12 +103,11 @@ export default function PolicyPage() {
             ) : error ? (
               <motion.div
                 key="error"
-                className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
               >
-                <div className="flex items-center">
+                <div className="flex items-center bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md">
                   <AlertTriangle className="h-6 w-6 mr-2" />
                   <p>
                     <strong className="font-bold">Error: </strong> {error}
@@ -112,7 +117,9 @@ export default function PolicyPage() {
             ) : (
               <motion.div
                 key="content"
-                className="space-y-8"
+                style={{
+                  marginTop: "2rem",
+                }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
@@ -164,7 +171,10 @@ export default function PolicyPage() {
                             (policy, index) => (
                               <motion.li
                                 key={index}
-                                className="flex items-start"
+                                style={{
+                                  display: "flex",
+                                  alignItems: "flex-start",
+                                }}
                                 initial={{ opacity: 0, x: -20 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: index * 0.1 }}

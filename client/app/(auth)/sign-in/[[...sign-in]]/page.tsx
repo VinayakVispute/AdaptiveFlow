@@ -37,7 +37,7 @@ export default function LoginPage() {
               },
             }}
             signUpUrl="/sign-up"
-            afterSignInUrl="/Dashboard"
+            forceRedirectUrl="/Dashboard"
           />
           <div className="text-center text-sm text-[#475569]">
             Don&apos;t have an account?{" "}

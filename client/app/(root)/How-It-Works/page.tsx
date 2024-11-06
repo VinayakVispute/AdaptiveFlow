@@ -11,6 +11,7 @@ import {
   Bell,
 } from "lucide-react";
 import Link from "next/link";
+import { JSX } from "react";
 
 export default function AdaptiveFlowPage() {
   return (

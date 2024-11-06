@@ -20,6 +20,7 @@ import {
   Zap,
 } from "lucide-react";
 import Link from "next/link";
+import { JSX } from "react";
 
 export default function AdaptiveFlowPage() {
   return (
@@ -47,7 +48,7 @@ export default function AdaptiveFlowPage() {
         <section className="mb-20 relative">
           <div className="absolute inset-0 bg-blue-100 dark:bg-blue-900 opacity-50 rounded-3xl transform -skew-y-3"></div>
           <Image
-            src="/assets/header-worflow.svg"
+            src="/assets/header-workflow.svg"
             alt="AdaptiveFlow Workflow"
             width={800}
             height={400}

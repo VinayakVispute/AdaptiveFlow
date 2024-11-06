@@ -416,9 +416,12 @@ const Header = ({ translate, titleComponent }: any) => {
   return (
     <motion.div
       style={{
+        marginLeft: "auto",
+        marginRight: "auto",
+        maxWidth: "64rem",
+        textAlign: "center",
         translateY: translate,
       }}
-      className="div mx-auto max-w-5xl text-center"
     >
       {titleComponent}
     </motion.div>
@@ -440,8 +443,14 @@ export const Card = ({
       style={{
         rotateX: rotate,
         scale,
+        marginLeft: "auto",
+        marginRight: "auto",
+        marginTop: "-3rem",
+        height: "auto",
+        width: "100%",
+        maxWidth: "64rem",
+        borderRadius: "30px",
       }}
-      className="mx-auto -mt-12 h-auto w-full max-w-5xl rounded-[30px]"
     >
       <div className="relative mx-auto w-full rounded-[32px] border border-[#E2E8F0] bg-[#F8FAFC] p-2 opacity-100 backdrop-blur-lg will-change-auto md:p-4">
         {children}

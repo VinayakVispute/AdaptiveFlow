@@ -80,8 +80,9 @@ const Accordion: React.FC<AccordionProps> = ({
 }) => {
   const isOpen = i === expanded;
 
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref as React.RefObject<Element>, { once: true });
+
   return (
     <motion.div
       ref={ref}
@@ -91,35 +92,54 @@ const Accordion: React.FC<AccordionProps> = ({
         delay: 0.2 * i,
         duration: 0.8,
       }}
-      className="overflow-hidden rounded-lg border border-[#E2E8F0]"
+      style={{
+        overflow: "hidden",
+        borderWidth: "1px",
+        borderRadius: "0.5rem",
+        borderColor: "#E2E8F0",
+      }}
     >
-      <motion.header
+      <motion.div
         initial={false}
         animate={{
           backgroundColor: isOpen ? "#F1F5F9" : "#FFFFFF",
         }}
-        onClick={() => setExpanded(isOpen ? null : i)}
-        className="flex cursor-pointer items-center justify-between p-4"
+        style={{
+          display: "flex",
+          cursor: "pointer",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
       >
-        <h3 className="text-lg font-medium text-[#1E293B]">{title}</h3>
-        <div>
-          <motion.svg
-            animate={{ rotate: isOpen ? 180 : 0 }}
-            transition={{ duration: 0.3 }}
-            className="size-5 text-[#64748B]"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </motion.svg>
+        <div
+          onClick={() => setExpanded(isOpen ? null : i)}
+          className="flex w-full items-center justify-between"
+        >
+          <h3 className="text-lg font-medium text-[#1E293B]">{title}</h3>
+          <div>
+            <motion.svg
+              animate={{ rotate: isOpen ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
+              className="size-5 text-[#64748B]"
+              style={{
+                width: "1.25rem",
+                height: "1.25rem",
+                color: "#64748B",
+              }}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </motion.svg>
+          </div>
         </div>
-      </motion.header>
+      </motion.div>
       <AnimatePresence initial={false}>
         {isOpen && (
           <motion.section
