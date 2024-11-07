@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - "client/**"
+      - "docker/**"
 
 jobs:
   build-and-push:
@@ -31,5 +31,5 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t myregistry.azurecr.io/my-image:latest client
-          docker push myregistry.azurecr.io/my-image:latest
+          docker build -t adaptiveflow.azurecr.io/adaptive-flow:latest docker
+          docker push adaptiveflow.azurecr.io/adaptive-flow:latest
