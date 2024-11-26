@@ -3,6 +3,7 @@
 import { NotificationState, UploadedVideo } from "@/interface";
 import { fetchNotifications } from "@/lib/action/notification.action";
 import { fetchUploadedVideos } from "@/lib/action/video.action";
+import { useAuth } from "@clerk/nextjs";
 import { Status } from "@prisma/client";
 import Pusher from "pusher-js";
 import {
@@ -12,7 +13,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { useAuth } from "@clerk/nextjs";
+
 import toast from "react-hot-toast";
 
 interface NotificationHistoryContextType {
@@ -25,6 +26,8 @@ interface NotificationHistoryContextType {
 
 const NotificationHistoryContext =
   createContext<NotificationHistoryContextType | null>(null);
+
+export const dynamic = "force-dynamic";
 
 export const NotificationHistoryProvider = ({
   children,

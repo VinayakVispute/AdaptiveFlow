@@ -2,9 +2,14 @@
 import prisma from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 
+interface isUserEligibleForUploadResponse {
+  success: boolean;
+  message?: string;
+}
+
 export const isUserEligibleForUpload = async (
   videoSizeInMB: number
-): Promise<boolean> => {
+): Promise<isUserEligibleForUploadResponse> => {
   const userDetails = await currentUser();
   if (
     !userDetails ||
@@ -13,7 +18,11 @@ export const isUserEligibleForUpload = async (
   ) {
     console.error("User authentication failed");
     // throw new Error("User not authenticated or userId not found");
-    throw new Error("AUTHENTICATION_FAILED");
+
+    return {
+      success: false,
+      message: "User not authenticated",
+    };
   }
 
   // Maximum allowed size per video in MB
@@ -22,7 +31,11 @@ export const isUserEligibleForUpload = async (
   // Check if video exceeds allowed size
   if (videoSizeInMB > MAX_VIDEO_SIZE_MB) {
     console.error("Video size exceeds the allowed limit");
-    throw new Error("MAX_VIDEO_SIZE_EXCEEDED");
+    return {
+      success: false,
+      message:
+        "Video size exceeds the allowed limit. Please upload a smaller video.",
+    };
   }
 
   const userId: string = userDetails?.privateMetadata.userId as string;
@@ -42,12 +55,17 @@ export const isUserEligibleForUpload = async (
   if (!user || user.videosUploaded >= user.maxVideosAllowed) {
     console.log(user?.maxVideosAllowed, user?.videosUploaded);
     console.error("User has reached the maximum allowed video uploads");
-    throw new Error("MAXIMUM_VIDEOS_REACHED");
+    return {
+      success: false,
+      message: "You have reached the maximum allowed video uploads.",
+    };
   }
 
   // If user is eligible to upload, return true
   console.log("User is eligible to upload the video");
-  return true;
+  return {
+    success: true,
+  };
 };
 
 export const checkUserAPIKey = async (userId: string) => {

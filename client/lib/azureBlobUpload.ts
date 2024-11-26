@@ -6,9 +6,8 @@ import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import { createdUploadedVideoInDb } from "./action/video.action";
 import { sanitizeFileName } from "./utils";
-import toast from "react-hot-toast";
+
 import { isUserEligibleForUpload } from "./action/user.action";
-// import { createdUploadedVideoInDb } from "./action/video.action";
 
 interface UploadResult {
   success: boolean;
@@ -33,7 +32,9 @@ export async function uploadVideoToAzureDirectly(
 
     if (!fileExtension || fileExtension !== "mp4") {
       console.log("Invalid file extension", fileExtension);
-      throw new Error("Invalid file extension");
+      throw new Error(
+        "Invalid file extension. Please upload a valid video file"
+      );
     }
 
     const baseName =
@@ -52,7 +53,19 @@ export async function uploadVideoToAzureDirectly(
     const videoSizeInMB = videoFile.size / (1024 * 1024);
     console.log(`Video size: ${videoSizeInMB} MB`);
 
-    await isUserEligibleForUpload(videoSizeInMB);
+    const isUserEligibleForUploadResponse = await isUserEligibleForUpload(
+      videoSizeInMB
+    );
+
+    if (!isUserEligibleForUploadResponse.success) {
+      console.error("User is not eligible for upload");
+      return {
+        success: false,
+        error:
+          isUserEligibleForUploadResponse.message ||
+          "User is not eligible for upload",
+      };
+    }
 
     console.log("Requesting SAS token and upload URL from API...");
     const response = await axios.post("/api/authorize-blob", {
@@ -114,44 +127,9 @@ export async function uploadVideoToAzureDirectly(
       url: blockBlobClient.url,
     };
   } catch (error: any) {
-    console.error("Azure Blob direct upload failed:", error.message || error);
-
-    let errorMessage = "Azure Blob direct upload failed.";
-
-    if (error.message && error.message.includes("MAX_VIDEO_SIZE_EXCEEDED")) {
-      errorMessage =
-        "Video size exceeds the allowed limit. Please upload a smaller video.";
-    } else if (
-      error.message &&
-      error.message.includes("MAXIMUM_VIDEOS_REACHED")
-    ) {
-      errorMessage = "You have reached the maximum allowed video uploads.";
-    } else if (
-      error.message &&
-      error.message.includes("Failed to get user id")
-    ) {
-      errorMessage = "Failed to get user ID.";
-    } else if (
-      error.message &&
-      error.message.includes("Invalid file extension")
-    ) {
-      errorMessage =
-        "Invalid file extension. Please upload a valid video file.";
-    } else if (
-      error.message &&
-      error.message.includes("Failed to fetch SAS token")
-    ) {
-      errorMessage = "Failed to fetch SAS token. Please try again.";
-    } else if (error.message && error.message.includes("upload")) {
-      errorMessage =
-        "Failed to upload video. Please check your connection and try again.";
-    } else if (error.message && error.message.includes("database")) {
-      errorMessage = "Failed to create video record in the database.";
-    }
-
     return {
       success: false,
-      error: errorMessage,
+      error: error.message || "Azure Blob direct upload failed.",
     };
   }
 }
